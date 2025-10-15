@@ -16,14 +16,12 @@ const Signup = () => {
         window.scrollTo({ top: 0, behavior: "smooth" })
 
         // Check if user is already signed in
-        const unsubscribe = auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged((user) => {
             if (user) {
-                navigate("/", { replace: true })
+                navigate("/")
             }
-        });
-
-        return () => unsubscribe();
-    }, [navigate])
+        })
+    }, [])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -51,7 +49,7 @@ const Signup = () => {
             navigate('/login')
         } catch (error) {
             console.error("Signup Error:", error)
-            
+
             // Handle specific Firebase errors
             if (error.code === 'auth/email-already-in-use') {
                 setError("This email is already registered. Please login instead.")
@@ -71,17 +69,12 @@ const Signup = () => {
         try {
             setError("")
             setLoading(true)
-            
-            console.log("Starting Google popup signup...")
-            const result = await signInWithPopup(auth, Provider)
-            
-            if (result && result.user) {
-                console.log("Google signup successful:", result.user)
-                navigate("/", { replace: true })
-            }
+
+            await signInWithPopup(auth, Provider)
+            navigate("/")
         } catch (error) {
             console.error("Google Signup Error:", error)
-            
+
             // Handle specific error cases
             if (error.code === 'auth/popup-blocked') {
                 setError("Popup was blocked. Please allow popups for this site and try again.")
@@ -95,7 +88,7 @@ const Signup = () => {
             } else {
                 setError("Google signup failed. Please try again.")
             }
-            
+
             setLoading(false)
         }
     }
