@@ -35,7 +35,7 @@ const Cart = () => {
     if (cartItems.length === 0)
         return <h2 className="text-center min-h-max my-60 text-gray-600">🛒 Your cart is empty</h2>;
 
-    const localBackendUrl = "http://localhost:8080/api/payment"
+    const localBackendUrl = "https://nobero-app.onrender.com/api/payment"
 
     const handleBuyNow = (async ()=>{
         const {data} = await axios.post(`${localBackendUrl}/orders`, {amount: total})
