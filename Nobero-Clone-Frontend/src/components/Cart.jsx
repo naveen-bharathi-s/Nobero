@@ -47,6 +47,8 @@ const Cart = () => {
             console.log(err)
             alert("Something went wrong, please try again!")
             setLoading(false)
+        } finally {
+            setLoading(false);
         }
     })
 

@@ -102,7 +102,7 @@ const Login = () => {
                 </form>
 
                 {/* Divider */}
-                <div className="flex items-center my-4">
+                <div className="hidden lg:flex items-center my-4">
                     <div className="flex-1 border-t border-gray-300"></div>
                     <p className="text-gray-500 mx-2 text-sm">or</p>
                     <div className="flex-1 border-t border-gray-300"></div>
@@ -112,7 +112,7 @@ const Login = () => {
                 <button
                     onClick={handleGoogleSignup}
                     type="button"
-                    className="flex items-center justify-center gap-2 w-full border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition"
+                    className="hidden lg:flex items-center justify-center gap-2 w-full border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition"
                 >
                     <FcGoogle className="text-xl" />
                     <span className="text-gray-700 font-medium">Sign in with Google</span>
