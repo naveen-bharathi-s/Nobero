@@ -33,6 +33,7 @@ const Header = () => {
     const navLinks = [
         {
             title: "Men",
+            link: "/",
         },
         {
             title: "Oversized Tees",
