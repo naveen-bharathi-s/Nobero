@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useCart } from "../CardContext";
 import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
@@ -16,15 +16,16 @@ const Cart = () => {
                 if (user) {
                     navigate("/cart")
                 } else {
-                    clearCart() 
+                    clearCart()
                     navigate("/login")
                 }
             })
 
-            return () => unsubscribe()
+        return () => unsubscribe()
     }, [])
 
     const { cartItems, clearCart, addToCart, removeFromCart } = useCart();
+    const [loading, setLoading] = useState(false);
     const total = cartItems.reduce(
         (acc, item) => {
             const price = Number(item.price.replace(/[^0-9.-]+/g, ""));
@@ -37,10 +38,17 @@ const Cart = () => {
 
     const localBackendUrl = "https://nobero-app.onrender.com/api/payment"
 
-    const handleBuyNow = (async ()=>{
-        const {data} = await axios.post(`${localBackendUrl}/orders`, {amount: total})
-        initcatePayment(data);
-    })  
+    const handleBuyNow = (async () => {
+        try {
+            setLoading(true);
+            const { data } = await axios.post(`${localBackendUrl}/orders`, { amount: total })
+            initcatePayment(data);
+        } catch (err) {
+            console.log(err)
+            alert("Something went wrong, please try again!")
+            setLoading(false)
+        }
+    })
 
     const initcatePayment = (orderData) => {
         console.log(orderData)
@@ -50,17 +58,22 @@ const Cart = () => {
             Currency: orderData.data.Currency,
             desc: 'test payment method',
             order_id: orderData.data.id,
-            handler: async (res)=> {
-                await axios.post(`${localBackendUrl}/verify`, res).then((res) => {
-                    if(res.status === 200){
+            handler: async (res) => {
+                try {
+                    const verifyRes = await axios.post(`${localBackendUrl}/verify`, res)
+                    if (verifyRes.status === 200) {
                         alert('Payment Verified...')
                         clearCart()
-                    }else{
+                    } else {
                         alert('Payment Failed...')
                     }
-                })
+                } catch (err) {
+                    alert("payment verification failed.")
+                } finally {
+                    setLoading(false);
+                }
             },
-            theme:{
+            theme: {
                 color: '#3399cc'
             },
         }
@@ -110,23 +123,46 @@ const Cart = () => {
                 <p>Total:</p>
                 <p>₹{total.toLocaleString('en-IN')}</p>
             </div>
-               
+
             <div className="flex justify-between">
                 <button
-                onClick={clearCart}
-                className="mt-6 bg-red-500 text-white px-4 py-2 rounded-md"
-            >
-                Clear Cart
-            </button>
+                    onClick={clearCart}
+                    className="mt-6 bg-red-500 text-white px-4 py-2 rounded-md"
+                >
+                    Clear Cart
+                </button>
 
-            <button
-                onClick={handleBuyNow}
-                className="mt-6 bg-blue-500 text-white px-4 py-2 rounded-md"
-            >
-                Check Out
-            </button>
+                <button
+                    onClick={handleBuyNow}
+                    disabled={loading}
+                    className={`mt-6 flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md
+                        ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+                >
+                    {loading ? (<>
+                        <svg
+                            className="animate-spin h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                            ></circle>
+                            <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            ></path>
+                        </svg>
+                        Processing...
+                    </>) : ("Check Out")}
+                </button>
             </div>
-            
         </div>
     );
 };

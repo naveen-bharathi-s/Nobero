@@ -11,6 +11,7 @@ const Login = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -27,21 +28,30 @@ const Login = () => {
 
     const handleLogin = (e) => {
         e.preventDefault()
+        setError("")
+        setLoading(true)
 
         signInWithEmailAndPassword(auth, email, password).then((res) => {
             navigate('/')
         }).catch(() => {
             setError("Error Signing in Please try again")
-        })
+        }).finally (() => {
+            setLoading(false)
+        }
+        )
     }
 
     const handleGoogleSignup = async () => {
+        setError("")
+        setLoading(true)
         try {
             await signInWithPopup(auth, Provider)
             navigate("/")
         } catch (error) {
             console.error("Google Login Error:", error.message)
-            alert("Google login failed. Please try again")
+            setError("Google login failed. Please try again")
+        }  finally {
+            setLoading(false)
         }
     }
 
